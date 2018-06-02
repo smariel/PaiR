@@ -140,7 +140,6 @@ var show_result = function(result_list, max) {
    let html = '';
    let i=0;
    for(let result of result_list){
-      //console.log(result);
       html += `<tr><td>${i++}</td><td>${result.R1}</td><td>${result.R1}</td><td>${result.val}</td></tr>`;
       if(i >= max) break;
    }
