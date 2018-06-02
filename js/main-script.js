@@ -1,3 +1,4 @@
+// get all the resistor value from a Exx serie, starting from a min, to a max
 var eserie = function(eserie, min, max) {
    let eseries = {
       'E3'  : [1.00, 2.20, 4.70],
@@ -25,6 +26,7 @@ var eserie = function(eserie, min, max) {
    return return_values;
 };
 
+// get the test values from the from into an array
 var get_testvalues = function() {
    let list_name = $('#resistor_list').val();
 
@@ -49,6 +51,7 @@ var get_testvalues = function() {
    }
 };
 
+// get the equation from the form, check it, and transform it
 var get_equation = function() {
    let equation = $('#input_equation').val();
 
@@ -93,7 +96,12 @@ var get_equation = function() {
    };
 };
 
+// will only be called if Web Workers are not availables
+// calculate the equation with every combination of the given values
 var process = function(equation, test_values) {
+   // prepare the equation that will be evaluated with every combination of test values
+   // return an object containing R1, R2, the computed value and a "sort" values
+   // the "sort" represent the proximity with the target, where 0:is the target and +inf=the farthest
    let calc_equation = function(R1,R2) {
       let val = eval(equation.calcStr.replace('R1', R1).replace('R2', R2)); // jshint ignore:line
       return {
@@ -104,19 +112,23 @@ var process = function(equation, test_values) {
       };
    };
 
+   // prepare an empty object for the result list
    let all_result = [];
 
+   // for each combination of R1 and R2
    for(let R1 of test_values) {
       for(let R2 of test_values) {
          all_result.push(calc_equation(R1,R2));
       }
    }
 
+   // sort the table, nearest value first
    all_result.sort(function(a,b){return a.sort - b.sort;});
 
    return all_result;
 };
 
+// update the form, depending on the selection
 var update_form = function(){
    let list_name = $('#resistor_list').val();
    let test_values = get_testvalues();
@@ -136,6 +148,7 @@ var update_form = function(){
    $('#form_alert').html(`${test_values.length*test_values.length} values to evaluate`);
 };
 
+// print the result list in an array
 var show_result = function(result_list, max) {
    let html = '';
    let i=0;
@@ -147,24 +160,36 @@ var show_result = function(result_list, max) {
    $('#section_result>table>tbody').html(html);
 };
 
+// When the DOM is ready
 $(function(){
+   // first update of the form
    update_form();
 
+   // GO button clicked
    $('#button_go').click(function(){
+      // If Web Workers are available, use them. Much faster for table sorting and simple data processing.
+      // https://developer.mozilla.org/fr/docs/Utilisation_des_web_workers
       if (window.Worker) {
-         $('#button_go').prop('disabled', true).text('Processing...');
-         var myWorker = new Worker('js/process.js');
+         // change the button style to indicate some processing...
+         $('#button_go').prop('disabled', true).text('Evaluating...');
+         // Create a Worker and send all data to it
+         var myWorker = new Worker('js/worker.js');
          myWorker.postMessage([get_equation(),get_testvalues()]);
+         // Creation of an event to catch the Worker responses
          myWorker.onmessage = function(e) {
+            // Get the values calulated in the Worker
             show_result(e.data, parseInt($('#nb_display').val()));
+            // Clear the style of the button
             $('#button_go').prop('disabled', false).text('Go');
          };
       }
+      // If the Web Workers are not available, use a slower function
       else {
          show_result(process(get_equation(), get_testvalues()), parseInt($('#nb_display').val()));
       }
    });
 
+   // When the selection change, update the form and clear the list of values
    $('#resistor_list').change(function(){
       if($('#resistor_list').val() === "custom") {
          $('#resistor_values').val('');
@@ -172,6 +197,7 @@ $(function(){
       update_form();
    });
 
+   // When the min & max change, update the form
    $('#resistor_min, #resistor_max').change(function(){
       update_form();
    });
