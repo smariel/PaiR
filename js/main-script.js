@@ -189,16 +189,15 @@ $(function(){
       }
    });
 
-   // When the selection change, update the form and clear the list of values
+   // When the selection change, update the list of values
    $('#resistor_list').change(function(){
       if($('#resistor_list').val() === "custom") {
          $('#resistor_values').val('');
       }
-      update_form();
    });
 
    // When the min & max change, update the form
-   $('#resistor_min, #resistor_max').change(function(){
+   $('.form-control').change(function(){
       update_form();
    });
 
