@@ -1,6 +1,9 @@
 /*
+  TODO: eliminate duplicates
+
   v2
   bug correction with missing R1 or R2
+  ignore inconsistent results
 
   v1: 06/
   init
@@ -40,20 +43,31 @@ var eserie = function(eserie, min, max) {
 var get_testvalues = function() {
   let list_name = $('#resistor_list').val();
 
+  // if the chosen list is custom
   if (list_name === 'custom') {
+    // if the textarea is empty, return an empty list
     if ('' == $('#resistor_values').val()) return [];
 
+    // construct the list
     let list = $('#resistor_values').val().split(',');
     for (let i = 0; i < list.length; i++) {
       let parsed_val = parseFloat(list[i]);
-      if (isNaN(parsed_val)) {
+      if (parsed_val == '') {
+        continue;
+      }
+      else if (isNaN(parsed_val)) {
         alert(`Error: ${list[i]} is not a correct number`);
         continue;
       }
       list[i] = parsed_val;
     }
+
+    // TODO: eliminate duplicates
+
     return list;
-  } else {
+  }
+  // else, pick the corresponding e-serie
+  else {
     let min = parseFloat($('#resistor_min').val());
     let max = parseFloat($('#resistor_max').val());
     return eserie(list_name, min, max);
@@ -108,26 +122,24 @@ var get_equation = function() {
 // will only be called if Web Workers are not availables
 // calculate the equation with every combination of the given values
 var process = function(equation, test_values) {
-  // prepare the equation that will be evaluated with every combination of test values
-  // return an object containing R1, R2, the computed value and a "sort" values
-  // the "sort" represent the proximity with the target, where 0:is the target and +inf=the farthest
-  let calc_equation = function(R1, R2) {
-    let val = eval(equation.calcStr.replace('R1', R1).replace('R2', R2)); // jshint ignore:line
-    return {
-      'R1': R1,
-      'R2': R2,
-      'val': val,
-      'sort': Math.abs(val - equation.result)
-    };
-  };
-
-  // prepare an empty object for the result list
-  let all_result = [];
+  if(false === equation || test_values.length == 0) {
+    return [];
+  }
 
   // for each combination of R1 and R2
+  let all_result = [];
   for (let R1 of test_values) {
     for (let R2 of test_values) {
-      all_result.push(calc_equation(R1, R2));
+      // evaluate the equation
+      let val = eval(equation.calcStr.replace('R1', R1).replace('R2', R2));
+      // store the result
+      // the "sort" represent the proximity with the target, where 0 is the target and +inf=the farthest
+      all_result.push({
+        'R1': R1,
+        'R2': R2,
+        'val': val,
+        'sort': Math.abs(val - equation.result)
+      });
     }
   }
 
@@ -162,7 +174,12 @@ var update_form = function() {
 var show_result = function(result_list, max) {
   let html = '';
   let i = 0;
+  let bad = 0;
   for (let result of result_list) {
+    if(isNaN(result.val) || Infinity == result.val) {
+      bad++;
+      continue;
+    }
     html += `<tr><td>${i++}</td><td>${result.R1}</td><td>${result.R1}</td><td>${result.val}</td></tr>`;
     if (i >= max) break;
   }
@@ -184,9 +201,11 @@ $(function() {
       $('#button_go').prop('disabled', true).text('Evaluating...');
       // Create a Worker and send all data to it
       var myWorker = new Worker('js/worker.js');
+      console.time('worker');
       myWorker.postMessage([get_equation(), get_testvalues()]);
       // Creation of an event to catch the Worker responses
       myWorker.onmessage = function(e) {
+        console.timeEnd('worker');
         // Get the values calulated in the Worker
         show_result(e.data, parseInt($('#nb_display').val()));
         // Clear the style of the button
