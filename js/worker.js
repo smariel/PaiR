@@ -1,6 +1,10 @@
 // copy of the process() function in main-script.js
 // calculate the equation with every combination of the given values
 var process = function(equation, test_values) {
+  if(false === equation || test_values.length == 0) {
+    return [];
+  }
+
   // prepare the equation that will be evaluated with every combination of test values
   // return an object containing R1, R2, the computed value and a "sort" values
   // the "sort" represent the proximity with the target, where 0:is the target and +inf=the farthest

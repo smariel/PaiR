@@ -1,3 +1,11 @@
+/*
+  v2
+  bug correction with missing R1 or R2
+
+  v1: 06/
+  init
+*/
+
 // get all the resistor value from a Exx serie, starting from a min, to a max
 var eserie = function(eserie, min, max) {
   let eseries = {
