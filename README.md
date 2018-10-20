@@ -1,5 +1,5 @@
 # PaiR
-Find the best value pair for your equation, such as voltage divider.
+Find the best combination of values for your equation, such as voltage divider.
 
 Demo: https://dev.otmax.fr/PaiR/
 
