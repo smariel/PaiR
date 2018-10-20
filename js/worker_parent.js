@@ -32,6 +32,16 @@ onmessage = function(e) {
           return a.sort - b.sort;
         });
 
+        // trunc the table
+        all_result = all_result.slice(0, max_values);
+
+        // compute the error
+        for(let result of all_result) {
+          result.error = Math.round(result.sort * 10000 / equation.result)/100;
+
+
+        }
+
         // return the result ans close the worker
         postMessage(all_result.slice(0, max_values));
         close();

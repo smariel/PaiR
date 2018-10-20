@@ -2,6 +2,7 @@
   v3
   infinite number of unknown variables
   multi threading
+  display error
 
   v2
   bug correction with missing R1 or R2
@@ -161,7 +162,7 @@ var show_result = function(result_list, rn) {
   for(let n=0; n<rn; n++) {
     html += `<th>R${n+1}</th>`;
   }
-  html +=`<th>Target value</th></tr>`;
+  html +=`<th>Target value</th><th>Error</th></tr>`;
 
 
   for (let result of result_list) {
@@ -169,7 +170,8 @@ var show_result = function(result_list, rn) {
     for(let n=0; n<rn; n++) {
       html += `<td>${result.rvals[n]}</td>`;
     }
-    html +=`<td>${result.val}</td></tr>`;
+    html +=`<td>${result.val}</td>`;
+    html +=`<td>${result.error}%</td></tr>`;
   }
 
   $('#section_result>table>tbody').html(html);
