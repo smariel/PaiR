@@ -45,7 +45,7 @@ onmessage = function(e) {
     let equ = equation.calcStr;
     for(let i=0; i<equation.rn; i++) {
       rvals[i] = test_values[indexes[i]];
-      equ = equ.replace('R'+(i+1), rvals[i]);
+      equ = equ.replace(new RegExp(`R${i+1}`,'g'), rvals[i]);
     }
 
     // eval the equation and check the result

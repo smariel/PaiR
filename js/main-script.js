@@ -1,4 +1,10 @@
 /*
+  TODO:
+  ne plus faire de remplace à chaqe tour de boucle : parser avant puis reconstruire l'équation dans la boucle
+
+  v4
+  fixed a crash when having multiple time the same Rx variable
+
   v3
   infinite number of unknown variables
   multi threading
