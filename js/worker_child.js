@@ -17,9 +17,10 @@ onmessage = function(e) {
 
 
   /*
-  index of all possible values
-  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 ==> n = test_values.length^equation.rn
+  index of all equations to evaluate
+  0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 ==> n = test_values.length^equation.rnames.length
 
+  in each equation to evaluate,
   indexes of R(i) = test_values[i]
   0  1  2  3  0  1  2  3  0  1  2  3  0  1  2  3  0  1  2  3  ==> i0 = n % test_values.length
   0  0  0  0  1  1  1  1  2  2  2  2  3  3  3  3  0  0  0  0  ==> i1 = Math.floor(n/Math.pow(test_values.length,1)) % test_values.length
@@ -29,8 +30,8 @@ onmessage = function(e) {
 
   // init
   let all_result = [];
-  let indexes    = new Array(equation.rn);
-  let rvals      = new Array(equation.rn);
+  let indexes    = new Array(equation.rnames.length);
+  let rvals      = new Array(equation.rnames.length);
 
   // for all values to evaluate
   for(let n=start; n<=stop; n++) {
@@ -43,9 +44,9 @@ onmessage = function(e) {
 
     // construct the equation
     let equ = equation.calcStr;
-    for(let i=0; i<equation.rn; i++) {
+    for(let i=0; i<equation.rnames.length; i++) {
       rvals[i] = test_values[indexes[i]];
-      equ = equ.replace(new RegExp(`R${i+1}`,'g'), rvals[i]);
+      equ = equ.replace(new RegExp(`${equation.rnames[i]}`,'g'), rvals[i]);
     }
 
     // eval the equation and check the result

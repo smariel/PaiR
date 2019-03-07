@@ -4,7 +4,7 @@ onmessage = function(e) {
   const equation        = e.data[1];
   const max_values      = e.data[2];
   const thread_n        = e.data[3];
-  const total_eval      = Math.pow(testvalues.length, equation.rn);
+  const total_eval      = Math.pow(testvalues.length, equation.rnames.length);
   const eval_per_thread = Math.floor(total_eval/thread_n);
   let   all_result      = [];
 
@@ -38,8 +38,6 @@ onmessage = function(e) {
         // compute the error
         for(let result of all_result) {
           result.error = Math.round(result.sort * 10000 / equation.result)/100;
-
-
         }
 
         // return the result ans close the worker

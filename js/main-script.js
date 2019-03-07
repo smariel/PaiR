@@ -1,6 +1,11 @@
 /*
   TODO:
   ne plus faire de remplace à chaqe tour de boucle : parser avant puis reconstruire l'équation dans la boucle
+  utiliser le GPU pour les calculs
+
+  v5
+  now works with only 1 var
+  var names dont't have to follow each other any more
 
   v4
   fixed a crash when having multiple time the same Rx variable
@@ -107,13 +112,9 @@ var get_equation = function() {
     return false;
   }
 
-  let rn;
-  for(let i=1; equation.indexOf('R'+i) > -1; i++) {
-    rn=i;
-  }
-
-  if(rn < 2) {
-    alert(`Error: the equation must contains at least two resistors, R1 and R2`);
+  let rnames = equation.match(/R[0-9]+/g);
+  if(null == rnames || rnames.length < 1) {
+    alert(`Error: the equation must contains at least one resistor`);
     return false;
   }
 
@@ -132,10 +133,10 @@ var get_equation = function() {
   }
 
   return {
-    full: equation,
+    full:    equation,
     calcStr: equation_str,
-    result: equation_result,
-    rn: rn
+    result:  equation_result,
+    rnames:  rnames,
   };
 };
 
@@ -156,24 +157,26 @@ var update_form = function() {
     $('#resistor_values').val(test_values.toString());
   }
 
-  $('#form_alert').html(`<strong>${Math.pow(test_values.length,equation.rn)}</strong> values to evaluate`);
+  $('#form_alert').html(`<strong>${Math.pow(test_values.length,equation.rnames.length)}</strong> values to evaluate`);
 };
 
 // print the result list in an array
-var show_result = function(result_list, rn) {
+var show_result = function(result_list, equation) {
   let html = '';
   let i = 0;
 
+  $('#result_recap').html(`#${result_list.length} best results for <code>${equation.full}</code>`);
+
   html += `<tr><th>#</th>`;
-  for(let n=0; n<rn; n++) {
-    html += `<th>R${n+1}</th>`;
+  for(let n=0; n<equation.rnames.length; n++) {
+    html += `<th>${equation.rnames[n]}</th>`;
   }
-  html +=`<th>Target value</th><th>Error</th></tr>`;
+  html +=`<th>Result</th><th>Error</th></tr>`;
 
 
   for (let result of result_list) {
-    html += `<tr><td>${i++}</td>`;
-    for(let n=0; n<rn; n++) {
+    html += `<tr><td>${1+i++}</td>`;
+    for(let n=0; n<equation.rnames.length; n++) {
       html += `<td>${result.rvals[n]}</td>`;
     }
     html +=`<td>${result.val}</td>`;
@@ -182,6 +185,14 @@ var show_result = function(result_list, rn) {
 
   $('#section_result>table>tbody').html(html);
 };
+
+
+
+
+
+
+
+
 
 // When the DOM is ready
 $(function() {
@@ -197,7 +208,7 @@ $(function() {
       const testvalues = get_testvalues();
       const equation   = get_equation();
       const max_values = parseInt($('#nb_display').val());
-      const total_eval = Math.pow(testvalues.length, equation.rn);
+      const total_eval = Math.pow(testvalues.length, equation.rnames.length);
       const thread_n   = navigator.hardwareConcurrency;
 
       // change the button style to indicate some processing...
@@ -215,7 +226,7 @@ $(function() {
         console.log(`Execution: ${total_eval} evaluation in ${exec_time}s (${total_eval/exec_time} eval/s) using ${thread_n} workers.`);
 
         // display the results
-        show_result(e.data, equation.rn);
+        show_result(e.data, equation);
 
         // Clear the style of the button
         $('#button_go').prop('disabled', false).text('Go');
