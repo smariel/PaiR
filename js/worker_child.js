@@ -29,12 +29,25 @@ onmessage = function(e) {
   */
 
   // init
-  let all_result = [];
-  let indexes    = new Array(equation.rnames.length);
-  let rvals      = new Array(equation.rnames.length);
+  let all_result    = [];
+  let indexes       = new Array(equation.rnames.length);
+  let rvals         = new Array(equation.rnames.length);
+  let progress      = 0;
+  let progress_q    = 100/(stop - start);
+  let progress_step = 1;
 
   // for all values to evaluate
   for(let n=start; n<=stop; n++) {
+    // return 10 progress steps to the parent worker
+    progress += progress_q;
+    if(progress > progress_step*10) {
+      postMessage({
+        message:  'progress',
+        progress:  progress_step
+      });
+      progress_step++;
+    }
+
     // compute indexes
     indexes[0] = n % test_values.length;
     indexes[1] = Math.floor(n/test_values.length) % test_values.length;
@@ -67,6 +80,9 @@ onmessage = function(e) {
   });
 
   // return the result ans close the worker
-  postMessage(all_result.slice(0,max-1));
+  postMessage({
+    message: 'result',
+    result:   all_result.slice(0,max-1)
+  });
   close();
 };

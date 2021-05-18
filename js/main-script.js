@@ -1,7 +1,10 @@
 /*
   TODO:
-  ne plus faire de remplace à chaqe tour de boucle : parser avant puis reconstruire l'équation dans la boucle
-  utiliser le GPU pour les calculs
+  - permettre de limiter chaque variable indépendament
+  - ne plus faire de replace à chaqe tour de boucle : parser avant puis reconstruire l'équation dans la boucle
+  - utiliser le GPU pour les calculs
+  v6
+  progress bar
 
   v5
   now works with only 1 var
@@ -199,6 +202,8 @@ $(function() {
   // first update of the form
   update_form();
 
+  let parent_worker;
+
   // GO button clicked
   $('#button_go').click(function() {
     // If Web Workers are available, use them. Much faster for table sorting and simple data processing.
@@ -212,30 +217,43 @@ $(function() {
       const thread_n   = navigator.hardwareConcurrency;
 
       // change the button style to indicate some processing...
-      $('#button_go').prop('disabled', true).text('Evaluating...');
+      $('#button_go'  ).prop('disabled', true).text('Evaluating...');
+      $('#button_stop').prop('disabled', false);
+      $('#progress'   ).prop('value', 0);
 
       // create a worker to process the data
-      let parent_worker = new Worker('js/worker_parent.js');
-      parent_worker.postMessage([testvalues, equation, max_values, thread_n]);
+      parent_worker = new Worker('js/worker_parent.js');
+      parent_worker.postMessage(['start', testvalues, equation, max_values, thread_n]);
 
       // on the worker response
       parent_worker.onmessage = function(e) {
-        // compute the execution time and print it in the console
-        const exec_time = (performance.now() - t_start)/1000;
-        // eslint-disable-next-line no-console
-        console.log(`Execution: ${total_eval} evaluation in ${exec_time}s (${total_eval/exec_time} eval/s) using ${thread_n} workers.`);
+        if('result' === e.data.message) {
+          // compute the execution time and print it in the console
+          const exec_time = (performance.now() - t_start)/1000;
+          // eslint-disable-next-line no-console
+          console.log(`Execution: ${total_eval} evaluation in ${exec_time}s (${total_eval/exec_time} eval/s) using ${thread_n} workers.`);
 
-        // display the results
-        show_result(e.data, equation);
+          // display the results
+          show_result(e.data.result, equation);
 
-        // Clear the style of the button
-        $('#button_go').prop('disabled', false).text('Go');
+          // Clear the style of the button
+          $('#button_go'  ).prop('disabled', false).text('Go');
+          $('#button_stop').prop('disabled', true);
+        }
+        else if('progress' === e.data.message) {
+          $('#progress').prop('value', Math.round(e.data.progress));
+        }
       };
     }
     // If the Web Workers are not available, use a slower function
     else {
       alert('Webworkers not available');
     }
+  });
+
+  // STOP button clicked
+  $('#button_stop').click(function() {
+    parent_worker.postMessage(['stop']);
   });
 
   // When the selection change, update the list of values

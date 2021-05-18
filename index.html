@@ -1,83 +1,84 @@
 <!DOCTYPE html>
 <html>
 
-   <head>
-      <meta charset="UTF-8">
-      <title>PaiR</title>
+<head>
+  <meta charset="UTF-8">
+  <title>PaiR</title>
 
-      <!-- CSS -->
-      <link rel="stylesheet" href="css/bootstrap.min.css">
-      <link rel="stylesheet" href="css/main-style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
 
-      <!-- JavaScript -->
-      <script src="js/jquery-3.3.1.min.js"></script>
-      <script src="js/bootstrap.min.js"></script>
-      <script src="js/main-script.js"></script>
-   </head>
+  <!-- JavaScript -->
+  <script src="js/jquery-3.6.0.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main-script.js"></script>
+</head>
 
-   <body class="container">
-      <div class="row">
-         <header class="col-md-12">
-            <h1>PaiR</h1>
-            <p>Find the best combination of values for your equation, such as voltage divider</p>
-            <hr />
-         </header>
-
-
-         <section id="section_form" class="col-md-6">
-            <h5>Configuration</h5>
-            <div class="form-group">
-               <label for="resistor_list">Resistor list</label>
-               <select id="resistor_list" class="form-control">
-                  <option value="custom">Custom values</option>
-                  <option value="E3">E3</option>
-                  <option value="E6">E6</option>
-                  <option value="E12" selected>E12</option>
-                  <option value="E24">E24</option>
-                  <option value="E48">E48</option>
-                  <option value="E96">E96</option>
-                  <option value="E192">E192</option>
-               </select>
-            </div>
-            <div class="form-row eserie_only">
-               <div class="form-group col-md-6">
-                  <label for="resistor_min">Min</label>
-                  <input type="text" class="form-control" id="resistor_min" value="1000" />
-               </div>
-               <div class="form-group col-md-6">
-                  <label for="resistor_max">Max</label>
-                  <input type="text" class="form-control" id="resistor_max" value="220000" />
-               </div>
-            </div>
-            <div class="form-group">
-               <label for="resistor_values">Test values</label>
-               <textarea class="form-control" id="resistor_values" rows="4">1</textarea>
-               <small class="form-text text-muted custom_only">Use , (coma) for separation and . (dot) for decimal. Example: 10.5,35.8,150,660,18000</small>
-            </div>
-            <div class="form-group">
-               <label for="input_equation">Equation</label>
-               <input type="text" class="form-control" id="input_equation" value="3.3 = 0.8 * (1 + (R1 / R2))" />
-               <small class="form-text text-muted">Must be of the form <em>[target number]=[equation with R1, R2, R3, etc...]</em></small>
-            </div>
-            <div class="form-group">
-               <label for="nb_display">Display the # best matches</label>
-               <input type="text" class="form-control" id="nb_display" value="20" />
-            </div>
-            <div id="form_alert" class="alert alert-info" role="alert"></div>
-            <button id="button_go" type="button" class="btn btn-primary col-md-12">Go</button>
-
-         </section>
+<body class="container">
+  <div class="row">
+    <header class="col-md-12">
+      <h1>PaiR</h1>
+      <p>Find the best combination of values for your equation, such as voltage divider</p>
+      <hr />
+    </header>
 
 
-         <section id="section_result" class="col-md-6">
-            <h5 id="result_recap"></h5>
-            <table class="table">
-               <thead>
-               </thead>
-               <tbody>
-               </tbody>
-            </table>
-         </section>
+    <section id="section_form" class="col-md-6">
+      <h5>Configuration</h5>
+      <div class="form-group">
+        <label for="resistor_list">Resistor list</label>
+        <select id="resistor_list" class="form-control">
+          <option value="custom">Custom values</option>
+          <option value="E3">E3</option>
+          <option value="E6">E6</option>
+          <option value="E12" selected>E12</option>
+          <option value="E24">E24</option>
+          <option value="E48">E48</option>
+          <option value="E96">E96</option>
+          <option value="E192">E192</option>
+        </select>
       </div>
-   </body>
+      <div class="form-row eserie_only">
+        <div class="form-group col-md-6">
+          <label for="resistor_min">Min</label>
+          <input type="text" class="form-control" id="resistor_min" value="1000" />
+        </div>
+        <div class="form-group col-md-6">
+          <label for="resistor_max">Max</label>
+          <input type="text" class="form-control" id="resistor_max" value="220000" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="resistor_values">Test values</label>
+        <textarea class="form-control" id="resistor_values" rows="4">1</textarea>
+        <small class="form-text text-muted custom_only">Use , (coma) for separation and . (dot) for decimal. Example: 10.5,35.8,150,660,18000</small>
+      </div>
+      <div class="form-group">
+        <label for="input_equation">Equation</label>
+        <input type="text" class="form-control" id="input_equation" value="3.3 = 0.8 * (1 + (R1 / R2))" />
+        <small class="form-text text-muted">Must be of the form <em>[target number]=[equation with R1, R2, R3, etc...]</em></small>
+      </div>
+      <div class="form-group">
+        <label for="nb_display">Display the # best matches</label>
+        <input type="text" class="form-control" id="nb_display" value="20" />
+      </div>
+      <div id="form_alert" class="alert alert-info" role="alert"></div>
+      <progress id="progress" max="100" value="0" class="col-md-12"></progress>
+      <button id="button_go"   type="button" class="btn btn-primary col-md-3"         >Go</button>
+      <button id="button_stop" type="button" class="btn btn-danger  col-md-3" disabled>Cancel</button>
+    </section>
+
+
+    <section id="section_result" class="col-md-6">
+      <h5 id="result_recap"></h5>
+      <table class="table">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+
 </html>
